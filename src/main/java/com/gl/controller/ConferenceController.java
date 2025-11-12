@@ -61,7 +61,7 @@ public class ConferenceController {
      */
     @Operation(summary = "Get conference by ID", description = "Get conference details by identifier")
     @GetMapping("/{id}")
-    public ResponseEntity<Conference> getConferenceById(@PathVariable String id) {
+    public ResponseEntity<Conference> getConferenceById(@PathVariable Integer id) {
         return conferenceService.getConferenceById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -69,15 +69,15 @@ public class ConferenceController {
 
     /**
      * Get conference details with pricing category
-     * GET /api/conferences/{id}/details
+     * GET /api/conferences/{name}/details
      */
     @Operation(summary = "Get conference details", description = "Get conference with current pricing category and deadlines")
-    @GetMapping("/{id}/details")
-    public ResponseEntity<ConferenceService.ConferenceDetailsDTO> getConferenceDetails(@PathVariable String id) {
+    @GetMapping("/{name}/details")
+    public ResponseEntity<ConferenceService.ConferenceDetailsDTO> getConferenceDetails(@PathVariable String name) {
         try {
-            return ResponseEntity.ok(conferenceService.getConferenceDetails(id));
+            return ResponseEntity.ok(conferenceService.getConferenceDetails(name));
         } catch (RuntimeException e) {
-            log.error("Conference not found: {}", id, e);
+            log.error("Conference not found: {}", name, e);
             return ResponseEntity.notFound().build();
         }
     }

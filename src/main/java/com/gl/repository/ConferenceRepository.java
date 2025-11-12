@@ -1,43 +1,28 @@
 package com.gl.repository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.gl.entity.Conference;
 
 @Repository
-public interface ConferenceRepository extends CrudRepository<Conference, String> {
+public interface ConferenceRepository extends CrudRepository<Conference, Integer> {
     
     /**
      * Find conference by name
      */
-    Optional<Conference> findByConfName(String confName);
+    Optional<Conference> findByName(String name);
     
     /**
-     * Find all active conferences (conference date is in the future)
+     * Find conference by venue
      */
-    @Query("SELECT c FROM Conference c WHERE c.conferenceDate > :today ORDER BY c.conferenceDate ASC")
-    List<Conference> findActiveConferences(@Param("today") LocalDate today);
+    List<Conference> findByVenue(String venue);
     
     /**
-     * Find upcoming conferences within a date range
+     * Find conferences by name containing
      */
-    @Query("SELECT c FROM Conference c WHERE c.conferenceDate BETWEEN :startDate AND :endDate ORDER BY c.conferenceDate ASC")
-    List<Conference> findUpcomingConferences(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
-    
-    /**
-     * Find conferences by country
-     */
-    List<Conference> findByCountry(String country);
-    
-    /**
-     * Find conferences by location
-     */
-    List<Conference> findByLocation(String location);
+    List<Conference> findByNameContainingIgnoreCase(String name);
 }

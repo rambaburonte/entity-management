@@ -1,22 +1,22 @@
 package com.gl.service;
 
-import com.gl.dto.PricingResponse;
-import com.gl.dto.RegistrationRequest;
-import com.gl.dto.RegistrationResponse;
-import com.gl.entity.Conference;
-import com.gl.entity.Registration;
-import com.gl.repository.ConferenceRepository;
-import com.gl.repository.RegistrationRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.gl.dto.PricingResponse;
+import com.gl.dto.RegistrationRequest;
+import com.gl.dto.RegistrationResponse;
+import com.gl.entity.Registration;
+import com.gl.repository.RegistrationRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -24,84 +24,38 @@ import java.util.Optional;
 public class RegistrationService {
 
     private final RegistrationRepository registrationRepository;
-    private final ConferenceRepository conferenceRepository;
     private final EmailService emailService;
-    private final DiscountService discountService;
 
     /**
      * Calculate pricing based on registration type, conference deadlines, and current date
+     * Note: Current database schema doesn't have deadline fields, using fixed pricing
      */
     public PricingResponse calculatePricing(String conferenceId, String registrationType) {
-        Conference conference = conferenceRepository.findById(conferenceId)
-                .orElseThrow(() -> new RuntimeException("Conference not found: " + conferenceId));
-
-        LocalDate today = LocalDate.now();
-        
-        // Determine pricing category based on deadlines
-        String category;
-        LocalDate categoryEndDate;
-        
-        if (conference.getEarlyBirdDate() != null && today.isBefore(conference.getEarlyBirdDate())) {
-            category = "EarlyBird";
-            categoryEndDate = conference.getEarlyBirdDate().minusDays(1);
-        } else if (conference.getStandardDate() != null && today.isBefore(conference.getStandardDate())) {
-            category = "Standard";
-            categoryEndDate = conference.getStandardDate().minusDays(1);
-        } else {
-            category = "Final";
-            categoryEndDate = conference.getConferenceDate(); // Until conference starts
-        }
+        // Since the database doesn't have early_bird_date, standard_date fields,
+        // we'll use fixed pricing structure
+        String category = "Standard"; // Default category
+        LocalDate categoryEndDate = LocalDate.now().plusMonths(3);
 
         // Build pricing map based on category and registration type
         Map<String, BigDecimal> prices = new HashMap<>();
         
-        switch (category) {
-            case "EarlyBird":
-                prices.put("Speaker", new BigDecimal("779.00"));
-                prices.put("Delegate", new BigDecimal("899.00"));
-                prices.put("Poster", new BigDecimal("449.00"));
-                prices.put("Student", new BigDecimal("329.00"));
-                // Sponsor pricing is fixed
-                prices.put("Platinum", new BigDecimal("10000.00"));
-                prices.put("Gold", new BigDecimal("7500.00"));
-                prices.put("Silver", new BigDecimal("5000.00"));
-                prices.put("Exhibitor", new BigDecimal("3000.00"));
-                prices.put("Promotional", new BigDecimal("1000.00"));
-                break;
-                
-            case "Standard":
-                prices.put("Speaker", new BigDecimal("879.00"));
-                prices.put("Delegate", new BigDecimal("999.00"));
-                prices.put("Poster", new BigDecimal("549.00"));
-                prices.put("Student", new BigDecimal("429.00"));
-                // Sponsor pricing is fixed
-                prices.put("Platinum", new BigDecimal("10000.00"));
-                prices.put("Gold", new BigDecimal("7500.00"));
-                prices.put("Silver", new BigDecimal("5000.00"));
-                prices.put("Exhibitor", new BigDecimal("3000.00"));
-                prices.put("Promotional", new BigDecimal("1000.00"));
-                break;
-                
-            case "Final":
-                prices.put("Speaker", new BigDecimal("979.00"));
-                prices.put("Delegate", new BigDecimal("1099.00"));
-                prices.put("Poster", new BigDecimal("649.00"));
-                prices.put("Student", new BigDecimal("529.00"));
-                // Sponsor pricing is fixed
-                prices.put("Platinum", new BigDecimal("10000.00"));
-                prices.put("Gold", new BigDecimal("7500.00"));
-                prices.put("Silver", new BigDecimal("5000.00"));
-                prices.put("Exhibitor", new BigDecimal("3000.00"));
-                prices.put("Promotional", new BigDecimal("1000.00"));
-                break;
-        }
+        prices.put("Speaker", new BigDecimal("879.00"));
+        prices.put("Delegate", new BigDecimal("999.00"));
+        prices.put("Poster", new BigDecimal("549.00"));
+        prices.put("Student", new BigDecimal("429.00"));
+        // Sponsor pricing is fixed
+        prices.put("Platinum", new BigDecimal("10000.00"));
+        prices.put("Gold", new BigDecimal("7500.00"));
+        prices.put("Silver", new BigDecimal("5000.00"));
+        prices.put("Exhibitor", new BigDecimal("3000.00"));
+        prices.put("Promotional", new BigDecimal("1000.00"));
 
         return PricingResponse.builder()
                 .registrationCategory(category)
                 .categoryEndDate(categoryEndDate)
                 .prices(prices)
                 .conferenceId(conferenceId)
-                .conferenceName(conference.getConfName())
+                .conferenceName(conferenceId) // Use ID as name for now
                 .build();
     }
 

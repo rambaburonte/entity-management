@@ -1,17 +1,5 @@
 package com.gl.service;
 
-import com.gl.dto.AbstractSubmissionRequest;
-import com.gl.dto.AbstractSubmissionResponse;
-import com.gl.entity.AbstractSubmission;
-import com.gl.repository.AbstractSubmissionRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,6 +10,20 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.gl.dto.AbstractSubmissionRequest;
+import com.gl.dto.AbstractSubmissionResponse;
+import com.gl.entity.AbstractSubmission;
+import com.gl.repository.AbstractSubmissionRepository;
+
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,7 +31,6 @@ public class AbstractSubmissionService {
 
     private final AbstractSubmissionRepository abstractSubmissionRepository;
     private final EmailService emailService;
-    private final FileStorageService fileStorageService;
     
     @Value("${file.upload-dir}")
     private String uploadDir;

@@ -1,6 +1,5 @@
 package com.gl.service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,120 +28,87 @@ public class ConferenceService {
     /**
      * Get conference by ID
      */
-    public Optional<Conference> getConferenceById(String id) {
+    public Optional<Conference> getConferenceById(Integer id) {
         return conferenceRepository.findById(id);
     }
 
     /**
-     * Get active conferences (conference date is in the future)
+     * Get active conferences
      */
     public List<Conference> getActiveConferences() {
-        LocalDate today = LocalDate.now();
-        return conferenceRepository.findActiveConferences(today);
+        return getAllConferences();
     }
 
     /**
-     * Get upcoming conferences (within next 6 months)
+     * Get upcoming conferences
      */
     public List<Conference> getUpcomingConferences() {
-        LocalDate today = LocalDate.now();
-        LocalDate sixMonthsLater = today.plusMonths(6);
-        return conferenceRepository.findUpcomingConferences(today, sixMonthsLater);
+        return getAllConferences();
     }
 
     /**
-     * Get conference by name (user field)
+     * Get conference by name
      */
-    public Optional<Conference> getConferenceByName(String confName) {
-        return conferenceRepository.findByConfName(confName);
+    public Optional<Conference> getConferenceByName(String name) {
+        return conferenceRepository.findByName(name);
     }
 
     /**
      * Check if conference is in early bird period
+     * Note: The database schema doesn't have early_bird_date field
      */
     public boolean isEarlyBirdPeriod(String conferenceId) {
-        Optional<Conference> conference = conferenceRepository.findById(conferenceId);
-        if (conference.isPresent() && conference.get().getEarlyBirdDate() != null) {
-            return LocalDate.now().isBefore(conference.get().getEarlyBirdDate());
-        }
+        // This functionality is not supported by current database schema
         return false;
     }
 
     /**
      * Check if conference is in standard period
+     * Note: The database schema doesn't have standard_date field
      */
     public boolean isStandardPeriod(String conferenceId) {
-        Optional<Conference> conference = conferenceRepository.findById(conferenceId);
-        if (conference.isPresent() && conference.get().getStandardDate() != null) {
-            LocalDate today = LocalDate.now();
-            LocalDate earlyBird = conference.get().getEarlyBirdDate();
-            LocalDate standard = conference.get().getStandardDate();
-            
-            if (earlyBird != null) {
-                return today.isAfter(earlyBird) && today.isBefore(standard);
-            } else {
-                return today.isBefore(standard);
-            }
-        }
+        // This functionality is not supported by current database schema
         return false;
     }
 
     /**
-     * Get conference details with pricing category
+     * Get conference details
      */
-    public ConferenceDetailsDTO getConferenceDetails(String conferenceId) {
-        Conference conference = conferenceRepository.findById(conferenceId)
-                .orElseThrow(() -> new RuntimeException("Conference not found: " + conferenceId));
-
-        LocalDate today = LocalDate.now();
-        String pricingCategory;
-        LocalDate deadlineDate;
-
-        if (conference.getEarlyBirdDate() != null && today.isBefore(conference.getEarlyBirdDate())) {
-            pricingCategory = "EarlyBird";
-            deadlineDate = conference.getEarlyBirdDate();
-        } else if (conference.getStandardDate() != null && today.isBefore(conference.getStandardDate())) {
-            pricingCategory = "Standard";
-            deadlineDate = conference.getStandardDate();
-        } else {
-            pricingCategory = "Final";
-            deadlineDate = conference.getConferenceDate();
-        }
+    public ConferenceDetailsDTO getConferenceDetails(String conferenceName) {
+        Conference conference = conferenceRepository.findByName(conferenceName)
+                .orElseThrow(() -> new RuntimeException("Conference not found: " + conferenceName));
 
         return ConferenceDetailsDTO.builder()
-                .conferenceId(conference.getUser())
-                .conferenceName(conference.getConfName())
+                .conferenceId(conference.getId())
+                .conferenceName(conference.getName())
                 .conferenceDate(conference.getConferenceDate())
-                .location(conference.getLocation())
-                .country(conference.getCountry())
-                .earlyBirdDeadline(conference.getEarlyBirdDate())
-                .standardDeadline(conference.getStandardDate())
-                .abstractDeadline(conference.getAbstractDate())
-                .currentPricingCategory(pricingCategory)
-                .nextDeadline(deadlineDate)
-                .isActive(conference.getConferenceDate() != null && 
-                         conference.getConferenceDate().isAfter(today))
+                .venue(conference.getVenue())
+                .theme(conference.getTheme())
+                .website(conference.getWebsite())
+                .email(conference.getEmail())
+                .shortDesc(conference.getShortDesc())
+                .ceremonyTime(conference.getCeremonyTime())
+                .ceremonyPlace(conference.getCeremonyPlace())
                 .build();
     }
 
     /**
-     * DTO for conference details with pricing info
+     * DTO for conference details
      */
     @lombok.Data
     @lombok.Builder
     @lombok.NoArgsConstructor
     @lombok.AllArgsConstructor
     public static class ConferenceDetailsDTO {
-        private String conferenceId;
+        private Integer conferenceId;
         private String conferenceName;
-        private LocalDate conferenceDate;
-        private String location;
-        private String country;
-        private LocalDate earlyBirdDeadline;
-        private LocalDate standardDeadline;
-        private LocalDate abstractDeadline;
-        private String currentPricingCategory;
-        private LocalDate nextDeadline;
-        private Boolean isActive;
+        private String conferenceDate;
+        private String venue;
+        private String theme;
+        private String website;
+        private String email;
+        private String shortDesc;
+        private String ceremonyTime;
+        private String ceremonyPlace;
     }
 }
