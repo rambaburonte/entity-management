@@ -1,6 +1,5 @@
 package com.gl.service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +22,7 @@ public class WorkshopsService {
         return workshopsRepository.findById(id).orElse(null);
     }
 
-    public List<Workshops> getWorkshopsByConference(Integer conferenceId) {
-        return workshopsRepository.findByConferenceId(conferenceId);
-    }
-
-    public List<Workshops> getWorkshopsByConferenceAndDate(Integer conferenceId, LocalDate date) {
-        return workshopsRepository.findByConferenceIdAndDate(conferenceId, date);
+    public List<Workshops> getWorkshopsByUser(Integer user) {
+        return workshopsRepository.findByUser(user);
     }
 }
