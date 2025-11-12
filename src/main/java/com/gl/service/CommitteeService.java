@@ -26,8 +26,4 @@ public class CommitteeService {
     public List<Committee> getCommitteeByConference(Integer conferenceId) {
         return committeeRepository.findByUser(conferenceId);
     }
-
-    public List<Committee> getCommitteeByCategory(String category, Integer conferenceId) {
-        return committeeRepository.findByCategoryAndUser(category, conferenceId);
-    }
 }

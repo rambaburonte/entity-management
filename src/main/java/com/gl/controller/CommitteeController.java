@@ -42,12 +42,4 @@ public class CommitteeController {
         List<Committee> committee = committeeService.getCommitteeByConference(conferenceId);
         return ResponseEntity.ok(committee);
     }
-
-    @GetMapping("/category/{category}/conference/{conferenceId}")
-    public ResponseEntity<List<Committee>> getCommitteeByCategory(
-            @PathVariable String category,
-            @PathVariable Integer conferenceId) {
-        List<Committee> committee = committeeService.getCommitteeByCategory(category, conferenceId);
-        return ResponseEntity.ok(committee);
-    }
 }
