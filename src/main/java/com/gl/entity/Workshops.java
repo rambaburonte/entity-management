@@ -1,8 +1,5 @@
 package com.gl.entity;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,7 +10,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "workshops")
+@Table(name = "workshop")
 @Data
 public class Workshops {
 
@@ -21,35 +18,22 @@ public class Workshops {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String workshopId;
+    @Column(name = "user")
+    private Integer user;
 
-    private String title;
+    @Column(name = "image", length = 500)
+    private String image;
 
-    private String instructor;
-
-    private LocalDate date;
-
-    private String time;
-
-    private Integer capacity;
-
-    private Integer enrolled;
-
-    private BigDecimal fee;
-
-    private String room;
+    @Column(name = "heading", length = 500)
+    private String heading;
 
     @Lob
-    private String prerequisites;
-
-    @Lob
-    private String description;
-
-    @Lob
-    private String topics; // JSON array of topics
-
-    private Integer conferenceId;
+    @Column(name = "para", columnDefinition = "TEXT")
+    private String para;
 
     @Column(name = "recordListingID")
     private Integer recordListingId;
+
+    @Column(name = "link", length = 500)
+    private String link;
 }

@@ -19,30 +19,31 @@ public class VenueHospitality {
     private Integer id;
 
     @Lob
+    @Column(name = "map", columnDefinition = "TEXT")
     private String map;
 
-    @Column(name = "venue_content")
+    @Column(name = "venue_content", columnDefinition = "TEXT")
     @Lob
     private String venueContent;
 
-    @Column(name = "venue_image1")
+    @Column(name = "venue_image1", length = 500)
     private String venueImage1;
 
-    @Column(name = "image_title1")
+    @Column(name = "image_title1", columnDefinition = "TEXT")
     @Lob
     private String imageTitle1;
 
-    @Column(name = "venue_image2")
+    @Column(name = "venue_image2", length = 500)
     private String venueImage2;
 
-    @Column(name = "image_title2")
+    @Column(name = "image_title2", columnDefinition = "TEXT")
     @Lob
     private String imageTitle2;
 
-    @Column(name = "venue_image3")
+    @Column(name = "venue_image3", length = 500)
     private String venueImage3;
 
-    @Column(name = "image_title3")
+    @Column(name = "image_title3", columnDefinition = "TEXT")
     @Lob
     private String imageTitle3;
 

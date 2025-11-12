@@ -18,28 +18,28 @@ public class VenueAccommodation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "acc_content")
+    @Column(name = "acc_content", columnDefinition = "TEXT")
     @Lob
     private String accContent;
 
-    @Column(name = "acc_image1")
+    @Column(name = "acc_image1", length = 500)
     private String accImage1;
 
-    @Column(name = "image_title1")
+    @Column(name = "image_title1", columnDefinition = "TEXT")
     @Lob
     private String imageTitle1;
 
-    @Column(name = "acc_image2")
+    @Column(name = "acc_image2", length = 500)
     private String accImage2;
 
-    @Column(name = "image_title2")
+    @Column(name = "image_title2", columnDefinition = "TEXT")
     @Lob
     private String imageTitle2;
 
-    @Column(name = "acc_image3")
+    @Column(name = "acc_image3", length = 500)
     private String accImage3;
 
-    @Column(name = "image_title3")
+    @Column(name = "image_title3", columnDefinition = "TEXT")
     @Lob
     private String imageTitle3;
 

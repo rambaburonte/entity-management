@@ -18,30 +18,47 @@ public class Committee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "name", length = 100)
     private String name;
 
     @Lob
+    @Column(name = "affiliation", columnDefinition = "TEXT")
     private String affiliation;
 
-    private String email;
-
+    @Column(name = "photo", length = 100)
     private String photo;
 
     @Lob
+    @Column(name = "biography", columnDefinition = "TEXT")
     private String biography;
 
     @Lob
+    @Column(name = "research", columnDefinition = "TEXT")
     private String research;
 
     @Lob
-    @Column(name = "abstract")
-    private String abstractField;
+    @Column(name = "pub1", columnDefinition = "TEXT")
+    private String pub1;
 
-    private String category;
+    @Lob
+    @Column(name = "pub2", columnDefinition = "TEXT")
+    private String pub2;
 
+    @Lob
+    @Column(name = "pub3", columnDefinition = "TEXT")
+    private String pub3;
+
+    @Lob
+    @Column(name = "pub4", columnDefinition = "TEXT")
+    private String pub4;
+
+    @Lob
+    @Column(name = "network", columnDefinition = "TEXT")
+    private String network;
+
+    @Column(name = "user")
     private Integer user;
 
     @Column(name = "recordListingID")
     private Integer recordListingId;
-
 }

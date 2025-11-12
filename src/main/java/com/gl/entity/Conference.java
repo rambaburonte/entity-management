@@ -1,58 +1,71 @@
 package com.gl.entity;
 
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "conference")
+@Table(name = "conferences")
 @Data
 public class Conference {
     
     @Id
-    @Column(name = "user", length = 100)
-    private String user; // Used as primary key (conference identifier)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     
-    @Column(name = "conf_name", length = 255)
-    private String confName;
+    @Column(name = "name", length = 250)
+    private String name;
     
-    @Column(name = "location", length = 100)
-    private String location;
+    @Lob
+    @Column(name = "theme", columnDefinition = "TEXT")
+    private String theme;
     
-    @Column(name = "country", length = 50)
-    private String country;
+    @Column(name = "conference_date", length = 100)
+    private String conferenceDate;
     
-    @Column(name = "conference_date")
-    private LocalDate conferenceDate;
-    
-    @Column(name = "early_bird_date")
-    private LocalDate earlyBirdDate;
-    
-    @Column(name = "standard_date")
-    private LocalDate standardDate;
-    
-    @Column(name = "abstract_date")
-    private LocalDate abstractDate;
-    
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
-    
-    @Column(name = "website", length = 255)
+    @Lob
+    @Column(name = "website", columnDefinition = "TEXT")
     private String website;
     
-    @Column(name = "email", length = 100)
+    @Lob
+    @Column(name = "website1", columnDefinition = "TEXT")
+    private String website1;
+    
+    @Lob
+    @Column(name = "abstract", columnDefinition = "TEXT")
+    private String abstractInfo;
+    
+    @Lob
+    @Column(name = "abstract1", columnDefinition = "TEXT")
+    private String abstract1;
+    
+    @Lob
+    @Column(name = "email", columnDefinition = "TEXT")
     private String email;
     
-    @Column(name = "phone", length = 20)
-    private String phone;
+    @Lob
+    @Column(name = "email1", columnDefinition = "TEXT")
+    private String email1;
     
-    @Column(name = "created_at")
-    private LocalDate createdAt;
+    @Lob
+    @Column(name = "email2", columnDefinition = "TEXT")
+    private String email2;
     
-    @Column(name = "updated_at")
-    private LocalDate updatedAt;
+    @Lob
+    @Column(name = "short_desc", columnDefinition = "TEXT")
+    private String shortDesc;
+    
+    @Column(name = "ceremony_time", length = 150)
+    private String ceremonyTime;
+    
+    @Column(name = "ceremony_place", length = 150)
+    private String ceremonyPlace;
+    
+    @Column(name = "venue", length = 250)
+    private String venue;
 }
