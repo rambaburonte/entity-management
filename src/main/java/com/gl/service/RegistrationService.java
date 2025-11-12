@@ -2,6 +2,8 @@ package com.gl.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -12,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.gl.dto.PricingResponse;
 import com.gl.dto.RegistrationRequest;
 import com.gl.dto.RegistrationResponse;
+import com.gl.entity.ImportantDetails;
 import com.gl.entity.Registration;
+import com.gl.repository.ImportantDetailsRepository;
 import com.gl.repository.RegistrationRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -24,39 +28,131 @@ import lombok.extern.slf4j.Slf4j;
 public class RegistrationService {
 
     private final RegistrationRepository registrationRepository;
+    private final ImportantDetailsRepository importantDetailsRepository;
     private final EmailService emailService;
 
     /**
      * Calculate pricing based on registration type, conference deadlines, and current date
-     * Note: Current database schema doesn't have deadline fields, using fixed pricing
+     * Implements PHP pricing logic: EarlyBird -> Standard -> OnSpot (Final)
      */
     public PricingResponse calculatePricing(String conferenceId, String registrationType) {
-        // Since the database doesn't have early_bird_date, standard_date fields,
-        // we'll use fixed pricing structure
-        String category = "Standard"; // Default category
-        LocalDate categoryEndDate = LocalDate.now().plusMonths(3);
+        try {
+            // Try to parse conferenceId as Integer to get ImportantDetails
+            Integer confId = null;
+            try {
+                confId = Integer.parseInt(conferenceId);
+            } catch (NumberFormatException e) {
+                log.warn("Conference ID is not numeric: {}", conferenceId);
+            }
 
-        // Build pricing map based on category and registration type
-        Map<String, BigDecimal> prices = new HashMap<>();
-        
-        prices.put("Speaker", new BigDecimal("879.00"));
-        prices.put("Delegate", new BigDecimal("999.00"));
-        prices.put("Poster", new BigDecimal("549.00"));
-        prices.put("Student", new BigDecimal("429.00"));
-        // Sponsor pricing is fixed
-        prices.put("Platinum", new BigDecimal("10000.00"));
-        prices.put("Gold", new BigDecimal("7500.00"));
-        prices.put("Silver", new BigDecimal("5000.00"));
-        prices.put("Exhibitor", new BigDecimal("3000.00"));
-        prices.put("Promotional", new BigDecimal("1000.00"));
+            // Get ImportantDetails if confId is valid
+            ImportantDetails details = null;
+            if (confId != null) {
+                details = importantDetailsRepository.findById(confId).orElse(null);
+            }
 
-        return PricingResponse.builder()
-                .registrationCategory(category)
-                .categoryEndDate(categoryEndDate)
-                .prices(prices)
-                .conferenceId(conferenceId)
-                .conferenceName(conferenceId) // Use ID as name for now
-                .build();
+            LocalDate today = LocalDate.now();
+            String category;
+            LocalDate categoryEndDate;
+            Map<String, BigDecimal> prices = new HashMap<>();
+
+            if (details != null && details.getEarlyBird() != null && details.getMidTerm() != null) {
+                // Parse dates from ImportantDetails
+                LocalDate earlyBirdDate = parseDate(details.getEarlyBird());
+                LocalDate midTermDate = parseDate(details.getMidTerm());
+                LocalDate onSpotDate = parseDate(details.getOnSpot());
+
+                // Determine pricing category based on current date
+                if (earlyBirdDate != null && !today.isAfter(earlyBirdDate)) {
+                    // EarlyBird pricing
+                    category = "EarlyBird";
+                    categoryEndDate = earlyBirdDate;
+                    prices.put("Speaker", new BigDecimal("779.00"));
+                    prices.put("Delegate", new BigDecimal("899.00"));
+                    prices.put("Poster", new BigDecimal("449.00"));
+                    prices.put("Student", new BigDecimal("329.00"));
+                } else if (midTermDate != null && !today.isAfter(midTermDate)) {
+                    // Standard pricing
+                    category = "Standard";
+                    categoryEndDate = midTermDate;
+                    prices.put("Speaker", new BigDecimal("879.00"));
+                    prices.put("Delegate", new BigDecimal("999.00"));
+                    prices.put("Poster", new BigDecimal("549.00"));
+                    prices.put("Student", new BigDecimal("429.00"));
+                } else {
+                    // OnSpot/Final pricing
+                    category = "Final";
+                    categoryEndDate = onSpotDate != null ? onSpotDate : today.plusMonths(1);
+                    prices.put("Speaker", new BigDecimal("979.00"));
+                    prices.put("Delegate", new BigDecimal("1099.00"));
+                    prices.put("Poster", new BigDecimal("649.00"));
+                    prices.put("Student", new BigDecimal("529.00"));
+                }
+            } else {
+                // Fallback to default Standard pricing if no details found
+                log.warn("No ImportantDetails found for conference ID: {}, using default pricing", conferenceId);
+                category = "Standard";
+                categoryEndDate = today.plusMonths(3);
+                prices.put("Speaker", new BigDecimal("879.00"));
+                prices.put("Delegate", new BigDecimal("999.00"));
+                prices.put("Poster", new BigDecimal("549.00"));
+                prices.put("Student", new BigDecimal("429.00"));
+            }
+
+            // Add fixed sponsor pricing
+            prices.put("Platinum", new BigDecimal("10000.00"));
+            prices.put("Gold", new BigDecimal("7500.00"));
+            prices.put("Silver", new BigDecimal("5000.00"));
+            prices.put("Exhibitor", new BigDecimal("3000.00"));
+            prices.put("Promotional", new BigDecimal("1000.00"));
+
+            String conferenceName = details != null ? details.getConferenceTitle() : conferenceId;
+
+            return PricingResponse.builder()
+                    .registrationCategory(category)
+                    .categoryEndDate(categoryEndDate)
+                    .prices(prices)
+                    .conferenceId(conferenceId)
+                    .conferenceName(conferenceName)
+                    .build();
+
+        } catch (Exception e) {
+            log.error("Error calculating pricing for conference: {}", conferenceId, e);
+            // Return default pricing on error
+            Map<String, BigDecimal> defaultPrices = new HashMap<>();
+            defaultPrices.put("Speaker", new BigDecimal("879.00"));
+            defaultPrices.put("Delegate", new BigDecimal("999.00"));
+            defaultPrices.put("Poster", new BigDecimal("549.00"));
+            defaultPrices.put("Student", new BigDecimal("429.00"));
+            
+            return PricingResponse.builder()
+                    .registrationCategory("Standard")
+                    .categoryEndDate(LocalDate.now().plusMonths(3))
+                    .prices(defaultPrices)
+                    .conferenceId(conferenceId)
+                    .conferenceName(conferenceId)
+                    .build();
+        }
+    }
+
+    /**
+     * Parse date string from ImportantDetails
+     * Format examples: "June 30, 2025", "October 28, 2025"
+     */
+    private LocalDate parseDate(String dateStr) {
+        if (dateStr == null || dateStr.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            // Remove extra spaces and parse
+            String cleanDate = dateStr.replaceAll(",", "").trim();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d yyyy");
+            return LocalDate.parse(cleanDate, formatter);
+        } catch (DateTimeParseException e) {
+            log.error("Failed to parse date: {}", dateStr, e);
+            return null;
+        }
     }
 
     /**
