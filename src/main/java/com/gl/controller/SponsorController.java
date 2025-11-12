@@ -37,17 +37,9 @@ public class SponsorController {
         return ResponseEntity.ok(sponsor);
     }
 
-    @GetMapping("/conference/{conferenceId}")
-    public ResponseEntity<List<Sponsors>> getSponsorsByConference(@PathVariable Integer conferenceId) {
-        List<Sponsors> sponsors = sponsorService.getSponsorsByConference(conferenceId);
-        return ResponseEntity.ok(sponsors);
-    }
-
-    @GetMapping("/type/{type}/conference/{conferenceId}")
-    public ResponseEntity<List<Sponsors>> getSponsorsByType(
-            @PathVariable String type,
-            @PathVariable Integer conferenceId) {
-        List<Sponsors> sponsors = sponsorService.getSponsorsByType(type, conferenceId);
+    @GetMapping("/user/{user}")
+    public ResponseEntity<List<Sponsors>> getSponsorsByUser(@PathVariable String user) {
+        List<Sponsors> sponsors = sponsorService.getSponsorsByUser(user);
         return ResponseEntity.ok(sponsors);
     }
 }

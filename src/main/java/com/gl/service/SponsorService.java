@@ -23,11 +23,7 @@ public class SponsorService {
         return sponsorsRepository.findById(id).orElse(null);
     }
 
-    public List<Sponsors> getSponsorsByConference(Integer conferenceId) {
-        return sponsorsRepository.findByConfId(conferenceId);
-    }
-
-    public List<Sponsors> getSponsorsByType(String type, Integer conferenceId) {
-        return sponsorsRepository.findBySponsorTypeAndConfId(type, conferenceId);
+    public List<Sponsors> getSponsorsByUser(String user) {
+        return sponsorsRepository.findByUser(user);
     }
 }

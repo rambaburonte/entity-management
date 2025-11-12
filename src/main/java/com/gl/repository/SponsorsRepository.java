@@ -1,13 +1,13 @@
 package com.gl.repository;
 
-import com.gl.entity.Sponsors;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.gl.entity.Sponsors;
 
 @Repository
 public interface SponsorsRepository extends JpaRepository<Sponsors, Integer> {
-    List<Sponsors> findByConfId(Integer confId);
-    List<Sponsors> findBySponsorTypeAndConfId(String sponsorType, Integer confId);
+    List<Sponsors> findByUser(String user);
 }
