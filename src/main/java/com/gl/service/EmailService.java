@@ -1,10 +1,7 @@
 package com.gl.service;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,41 +34,21 @@ public class EmailService {
     @Value("${brevo.sender.name}")
     private String senderName;
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
-
     private final WebClient.Builder webClientBuilder;
 
     public void sendAbstractConfirmationEmail(AbstractSubmission submission, String attachmentUrl) {
         try {
+            log.info("Sending abstract confirmation email to: {}", submission.getEmail());
+            
             // Read HTML template
-            String htmlContent = loadAbstractConfirmationTemplate(submission, attachmentUrl);
+            String htmlContent = loadAbstractConfirmationTemplate(submission);
 
-            // Prepare attachment
-            String attachmentContent = null;
-            String attachmentName = null;
-            if (submission.getAttachment() != null) {
-                File attachmentFile = new File(uploadDir, submission.getAttachment());
-                if (attachmentFile.exists()) {
-                    byte[] fileContent = Files.readAllBytes(attachmentFile.toPath());
-                    attachmentContent = Base64.getEncoder().encodeToString(fileContent);
-                    attachmentName = submission.getAttachment();
-                }
-            }
-
-            // Build email request
+            // Build email request (without attachment)
             Map<String, Object> emailRequest = new HashMap<>();
             emailRequest.put("sender", Map.of("email", senderEmail, "name", senderName));
             emailRequest.put("to", List.of(Map.of("email", submission.getEmail(), "name", submission.getFname())));
             emailRequest.put("subject", "Abstract Submission Confirmation for " + submission.getUser());
             emailRequest.put("htmlContent", htmlContent);
-
-            if (attachmentContent != null) {
-                emailRequest.put("attachment", List.of(Map.of(
-                        "name", attachmentName,
-                        "content", attachmentContent
-                )));
-            }
 
             // Send email via Brevo API
             WebClient webClient = webClientBuilder.build();
@@ -90,10 +67,11 @@ public class EmailService {
 
         } catch (Exception e) {
             log.error("Error sending email to: {}", submission.getEmail(), e);
+            throw new RuntimeException("Failed to send email", e);
         }
     }
 
-    private String loadAbstractConfirmationTemplate(AbstractSubmission submission, String attachmentUrl) {
+    private String loadAbstractConfirmationTemplate(AbstractSubmission submission) {
         // HTML template similar to abstract-confirmation.html
         String dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy"));
         

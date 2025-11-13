@@ -11,10 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -27,16 +25,15 @@ public class AbstractSubmissionController {
 
     private final AbstractSubmissionService abstractSubmissionService;
 
-    @Operation(summary = "Submit a new abstract", description = "Submit an abstract with file upload")
-    @PostMapping(value = "/submit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Submit a new abstract", description = "Submit an abstract")
+    @PostMapping(value = "/submit")
     public ResponseEntity<AbstractSubmissionResponse> submitAbstract(
-            @Valid @ModelAttribute AbstractSubmissionRequest request,
-            @RequestParam(value = "uploadfile", required = false) MultipartFile file,
+            @Valid @RequestBody AbstractSubmissionRequest request,
             HttpServletRequest httpRequest) {
         
         log.info("Received abstract submission from: {}", request.getEmail());
         
-        AbstractSubmissionResponse response = abstractSubmissionService.submitAbstract(request, file, httpRequest);
+        AbstractSubmissionResponse response = abstractSubmissionService.submitAbstract(request, null, httpRequest);
         
         if ("success".equals(response.getStatus())) {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
