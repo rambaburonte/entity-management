@@ -23,7 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Abstract Submission", description = "APIs for abstract submission and management")
-@CrossOrigin(origins = "*")
 public class AbstractSubmissionController {
 
     private final AbstractSubmissionService abstractSubmissionService;

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,13 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gl.entity.ImportantDetails;
 import com.gl.service.ImportantDetailsService;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * REST Controller for managing conference configuration and important details.
  * Provides dynamic configuration for the React frontend.
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/conference-config")
-@CrossOrigin(origins = "*")
 public class ImportantDetailsController {
 
     @Autowired
@@ -32,7 +33,9 @@ public class ImportantDetailsController {
      */
     @GetMapping
     public ResponseEntity<List<ImportantDetails>> getAllConfigs() {
+        log.info("GET /api/conference-config - Fetching all conference configurations");
         List<ImportantDetails> configs = importantDetailsService.getAllConfigs();
+        log.info("GET /api/conference-config - Retrieved {} conference configurations", configs.size());
         return ResponseEntity.ok(configs);
     }
 
@@ -43,10 +46,13 @@ public class ImportantDetailsController {
      */
     @GetMapping("/{shortName}")
     public ResponseEntity<ImportantDetails> getConfigByShortName(@PathVariable String shortName) {
+        log.info("GET /api/conference-config/{} - Fetching conference configuration", shortName);
         ImportantDetails config = importantDetailsService.getConfigByShortName(shortName);
         if (config != null) {
+            log.info("GET /api/conference-config/{} - Configuration found: {}", shortName, config.getConferenceTitle());
             return ResponseEntity.ok(config);
         }
+        log.warn("GET /api/conference-config/{} - Configuration not found", shortName);
         return ResponseEntity.notFound().build();
     }
 
@@ -62,10 +68,13 @@ public class ImportantDetailsController {
      */
     @GetMapping("/{shortName}/site-config")
     public ResponseEntity<Map<String, Object>> getSiteConfig(@PathVariable String shortName) {
+        log.info("GET /api/conference-config/{}/site-config - Fetching site configuration", shortName);
         Map<String, Object> siteConfig = importantDetailsService.getSiteConfig(shortName);
         if (siteConfig != null && !siteConfig.isEmpty()) {
+            log.info("GET /api/conference-config/{}/site-config - Retrieved configuration with {} fields", shortName, siteConfig.size());
             return ResponseEntity.ok(siteConfig);
         }
+        log.warn("GET /api/conference-config/{}/site-config - Configuration not found", shortName);
         return ResponseEntity.notFound().build();
     }
 

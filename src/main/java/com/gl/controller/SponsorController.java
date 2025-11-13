@@ -3,7 +3,6 @@ package com.gl.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,10 +12,11 @@ import com.gl.entity.Sponsors;
 import com.gl.service.SponsorService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/sponsors")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class SponsorController {
 

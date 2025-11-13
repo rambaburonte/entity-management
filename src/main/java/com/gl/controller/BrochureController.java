@@ -22,7 +22,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Brochure Management", description = "APIs for brochure download requests")
-@CrossOrigin(origins = "*")
 public class BrochureController {
 
     private final BrochureRepository brochureRepository;
